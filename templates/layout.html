@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{url_for('static', filename = 'css/bootstrap.min.css', _external = True)}}">
+    <link rel="stylesheet" href="{{url_for('static', filename = 'css/style.css', _external = True)}}">
+    {% if title %}
+        <title>Data Scrapper - {{ title }}</title>
+    {% else %}
+        <title>Data Scrapper</title>
+    {% endif %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Data Scrapper</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            {% if loggedIn %}
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="#">Enumerator</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Database</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Account</a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item dropdown-item" href="#">Change Password</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item dropdown-item" href="#">Logout</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+    </nav>
+    <div class="container-fluid">
+        {% block content %}{% endblock %}
+    </div>
+    <script type="text/javascript"  src="{{url_for('static', filename = 'js/jquery.js', _external = True)}}"></script>
+    <script type="text/javascript"  src="{{url_for('static', filename = 'js/popper.js', _external = True)}}"></script>
+    <script type="text/javascript"  src="{{url_for('static', filename = 'js/bootstrap.min.js', _external = True)}}"></script>
+    <script type="text/javascript"  src="{{url_for('static', filename = 'js/script.js', _external = True)}}"></script>
+</body>
+</html>

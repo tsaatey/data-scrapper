@@ -1,0 +1,62 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <div class="row" style="margin-top: 5%;">
+        <div class="col-sm-4"></div>
+        <div class="col-sm-4">
+            <div class="card">
+                <div class="card-header">
+                    SCRAPPING PARAMETERS REQUIRED
+                </div>
+                <div class="card-body">
+                    {% if error %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ message }}
+                    </div>
+                    {% elif success %}
+                    <div class="alert alert-success" role="alert">
+                        {{ message }}
+                    </div>
+                    {% endif %}
+                    <form class="form-vertical" role="form" method="post" action="{{url_for('index')}}" >
+                        <div class="row">
+                            <div class="form-group col-sm-12">
+                                <label for="school_url">School URL</label>
+                                <input class="form-control" type="text" name="school_url" id="school_url" placeholder="E.g. adashs.unilynq.com" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-sm-12">
+                                <label for="batch">Year batch</label>
+                                <select class="form-control" name="batch" id="batch" required>
+                                    <option value="2017">2017</option>
+                                    <option value="2018">2018</option>
+                                    <option value="2019">2019</option>
+                                    <option value="2020">2020</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-sm-12">
+                                <label for="username">Username</label>
+                                <input class="form-control" type="text" name="username" id="username" placeholder="Enter your unilynq username" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-sm-12">
+                                <label for="password">Password</label>
+                                <input class="form-control" type="password" name="password" id="password" placeholder="Enter your unilynq password" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-sm-12">
+                                <button type="submit" class="form-control btn">Let's Go</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4"></div>
+    </div>
+{% endblock content %}

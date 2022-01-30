@@ -1,0 +1,72 @@
+html, body {
+    height: 100%;
+    font-size: 16px;
+    font-family: 'Cubano';
+}
+
+/* FONT FACES */
+@font-face {
+    font-family: 'Cubano';
+    src: local('Cubano.otf'), url('Cubano.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'Nunito-Regular';
+    src: local('Nunito-Regular.ttf'), url('Nunito-Regular.ttf') format('truetype');
+}
+
+.navbar {
+    background-color: #00695c !important;
+}
+
+.navbar-brand {
+    color: #ffffff !important;
+}
+
+.nav-link {
+    color: #ffffff !important;
+}
+
+.card-header {
+    text-align: center;
+    color: #00695c;
+}
+
+.btn {
+    background-color:  #ffffff;
+    color: #00695c;
+    border-color: #00695c !important;
+}
+
+.btn:hover, btn:active {
+    outline: 0 !important;
+    color: #00695c;
+    background-color: #ffffff!important;
+    border-color: #00695c !important;
+    box-shadow: none !important;
+}
+
+.btn:focus {
+    outline: 0 !important;
+    color: #00695c;
+    background-color: #ffffff !important;
+    border-color: #00695c !important;
+    box-shadow: none !important;
+}
+
+.dropdown-item {
+    font-family: 'Nunito-Regular';
+    color: #000000 !important;
+}
+
+input {
+    font-family: 'Nunito-Regular';
+}
+
+.processing-area {
+    min-height: 100%;
+}
+
+.alert {
+    font-family: Tahoma;
+}
