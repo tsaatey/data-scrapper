@@ -1,4 +1,5 @@
 from utils.response import APIResponse
+import os
 import requests
 import pandas as pd
 
@@ -15,14 +16,13 @@ class StudentResource:
             "password": self.payload['password'],
             "grant_type": "password"
         }
-        url = "https://apivm.unilynq.com/token"
         headers = {
             "Content-Type": "application/x-www-form-urlencoded",
             "Origin": self.origin,
             "Referer": self.referer
         }
 
-        response = requests.post(url = url, data = payload, headers = headers)
+        response = requests.post(url = os.environ.get('LOGIN_URL'), data = payload, headers = headers)
         if response.status_code == 400:
             # Bad request
             return APIResponse(False, response.json()['error_description'])
@@ -45,9 +45,6 @@ class StudentResource:
         # Retrieve batch from submitted data
         batch = self.payload['batch']
 
-        # Url to get students data
-        url = "https://apivm.unilynq.com/api/students/v2/cssps"
-
         # Set header parameters
         headers = {
             "Authorization": f"Bearer {_response.data}",
@@ -68,7 +65,7 @@ class StudentResource:
                 "program": program['DeptName']
             }
 
-            response = requests.post(url, json = payload, headers = headers)
+            response = requests.post(url = os.environ.get("STUDENT_LIST_URL"), json = payload, headers = headers)
             students = response.json()['CSSPS']
 
             if students:
@@ -81,20 +78,18 @@ class StudentResource:
         file = pd.DataFrame({"Candidate name": student_names, "Gender": student_genders, "Date of Birth": student_dobs, "Programme": student_programmes})
         # Create the excel template
         writer = pd.ExcelWriter("student_data.xlsx")
-        file.to_excel(writer, sheet_name = "Sheet1", startrow=0, index=True, index_label = "SN")
+        file.to_excel(writer, sheet_name = "Sheet1", startrow = 0, index = True, index_label = "SN")
         writer.save()
-
         return APIResponse(True, 'Students data successfully extracted to excel')
 
     def get_school_programs(self, token):
-        url = "https://apivm.unilynq.com/api/programs/v2/all"
         headers = {
             "Authorization": f"Bearer {token}",
             "Origin": self.origin,
             "Referer": self.referer
         }
 
-        response = requests.get(url = url, headers = headers)
+        response = requests.get(url = os.environ.get("PROGRAM_LIST_URL"), headers = headers)
         programs = response.json()
 
         return APIResponse(True, 'success', programs)
