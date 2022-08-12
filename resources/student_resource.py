@@ -94,3 +94,6 @@ class StudentResource:
 
         return APIResponse(True, 'success', programs)
 
+    def change_student_program(self):
+        pass
+
