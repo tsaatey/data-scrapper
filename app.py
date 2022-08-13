@@ -4,11 +4,10 @@ import pathlib
 
 from resources.student_resource import StudentResource
 
-
 app = Flask(__name__)
 
 
-@app.route('/', methods = ['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def index():
     error = None
     message = ""
@@ -31,7 +30,7 @@ def index():
         }
 
         # Pass the payload to the student resource class
-        student_resource = StudentResource(payload = payload)
+        student_resource = StudentResource(payload=payload)
         response = student_resource.get_students()
         if not response.status:
             error = response.message
@@ -40,14 +39,13 @@ def index():
             success = True
             message = response.message
             file_name = "student_data.xlsx"
-            return send_from_directory(pathlib.Path().resolve(), file_name, as_attachment = True)
+            return send_from_directory(pathlib.Path().resolve(), file_name, as_attachment=True)
             # return redirect(url_for('/'), 200,)
-    return render_template('index.html', error = error, message = message, success = success)
+    return render_template('index.html', error=error, message=message, success=success)
 
 
 if __name__ == '__main__':
     port = 5000 + random.randint(0, 999)
     # url = "http://127.0.0.1:5000"
     # threading.Timer(1.25, lambda: webbrowser.open(url)).start()
-    app.run(debug = True, port = 5000)
-
+    app.run(debug=True, port=5000)
