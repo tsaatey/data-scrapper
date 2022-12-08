@@ -5,7 +5,7 @@ import pandas as pd
 
 
 class StudentResource:
-    def __init__(self, payload = None):
+    def __init__(self, payload=None):
         self.payload = payload
         self.origin = f"https://{payload['school_url']}"
         self.referer = f"https://{payload['school_url']}/"
@@ -22,7 +22,7 @@ class StudentResource:
             "Referer": self.referer
         }
 
-        response = requests.post(url = os.environ.get('LOGIN_URL'), data = payload, headers = headers)
+        response = requests.post(url=os.environ.get('LOGIN_URL'), data=payload, headers=headers)
         if response.status_code == 400:
             # Bad request
             return APIResponse(False, response.json()['error_description'])
@@ -57,6 +57,7 @@ class StudentResource:
         student_genders = []
         student_dobs = []
         student_programmes = []
+        student_parent_phones = []
 
         # Iterate over the programmes and get all students for each
         for program in programs:
@@ -65,7 +66,7 @@ class StudentResource:
                 "program": program['DeptName']
             }
 
-            response = requests.post(url = os.environ.get("STUDENT_LIST_URL"), json = payload, headers = headers)
+            response = requests.post(url=os.environ.get("STUDENT_LIST_URL"), json=payload, headers=headers)
             students = response.json()['CSSPS']
 
             if students:
@@ -74,11 +75,13 @@ class StudentResource:
                     student_genders.append(student['gender'])
                     student_dobs.append(student['dob'])
                     student_programmes.append(student['program'])
+                    student_parent_phones.append(student['phone'])
 
-        file = pd.DataFrame({"Candidate name": student_names, "Gender": student_genders, "Date of Birth": student_dobs, "Programme": student_programmes})
+        file = pd.DataFrame({"Candidate name": student_names, "Gender": student_genders, "Date of Birth": student_dobs,
+                             "Programme": student_programmes, "Parent Phone": student_parent_phones})
         # Create the excel template
         writer = pd.ExcelWriter("student_data.xlsx")
-        file.to_excel(writer, sheet_name = "Sheet1", startrow = 0, index = True, index_label = "SN")
+        file.to_excel(writer, sheet_name="Sheet1", startrow=0, index=True, index_label="SN")
         writer.save()
         return APIResponse(True, 'Students data successfully extracted to excel')
 
@@ -89,11 +92,10 @@ class StudentResource:
             "Referer": self.referer
         }
 
-        response = requests.get(url = os.environ.get("PROGRAM_LIST_URL"), headers = headers)
+        response = requests.get(url=os.environ.get("PROGRAM_LIST_URL"), headers=headers)
         programs = response.json()
 
         return APIResponse(True, 'success', programs)
 
     def change_student_program(self):
         pass
-
