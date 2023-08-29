@@ -53,7 +53,10 @@ class StudentResource:
         }
 
         student_ids = []
-        student_names = []
+        student_last_names = []
+        student_first_names = []
+        student_middle_names = []
+        student_residency = []
         student_genders = []
         student_dobs = []
         student_programmes = []
@@ -71,18 +74,55 @@ class StudentResource:
 
             if students:
                 for student in students:
-                    student_names.append(student['student_name'])
-                    student_genders.append(student['gender'])
-                    student_dobs.append(student['dob'])
-                    student_programmes.append(student['program'])
-                    student_parent_phones.append(student['phone'])
+                    # Split the student name to get first name, last name, and middle name
+                    name = student['student_name'].title()
+                    name_list = name.split(" ")
 
-        file = pd.DataFrame({"Candidate name": student_names, "Gender": student_genders, "Date of Birth": student_dobs,
-                             "Programme": student_programmes, "Parent Phone": student_parent_phones})
-        # Create the excel template
+                    # Only Last name and First name
+                    if len(name_list) == 2:
+                        student_last_names.append(name_list[0])
+                        student_first_names.append(name_list[1])
+                        student_middle_names.append("")
+
+                    # Has last name, first name, and middle name
+                    if len(name_list) == 3:
+                        student_last_names.append(name_list[0])
+                        student_first_names.append(name_list[1])
+                        student_middle_names.append(name_list[2])
+
+                    # Has last name, first name, more than one middle name
+                    if len(name_list) > 3:
+                        student_last_names.append(name_list[0])
+                        student_first_names.append(name_list[1])
+                        student_middle_names.append(name_list[2] + " " + name_list[3])
+
+                    gender = "Male" if student['gender'] == "M" else "Female"
+                    student_genders.append(gender)
+                    student_dobs.append(student['dob'])
+
+                    if student['program'].title() == "General Science":
+                        program = "General Programme in Science"
+                    elif student['program'].title() == "Business":
+                        program = "Business(Accounting)"
+                    elif student['program'].title() == "General Arts":
+                        program = "General Programme in Arts"
+                    else:
+                        program = student['program'].title()
+
+                    student_programmes.append(program)
+                    student_parent_phones.append(student['phone'])
+                    student_residency.append(student['residential_status'].title())
+
+        file = pd.DataFrame(
+            {"First Name": student_first_names, "Middle Name": student_middle_names, "Last Name": student_last_names,
+             "Gender": student_genders, "Date of Birth": student_dobs,
+             "Programme": student_programmes, "Residency": student_residency})
+
+        # Create the Excel template
         writer = pd.ExcelWriter("student_data.xlsx")
         file.to_excel(writer, sheet_name="Sheet1", startrow=0, index=True, index_label="SN")
-        writer.save()
+        writer.close()
+
         return APIResponse(True, 'Students data successfully extracted to excel')
 
     def get_school_programs(self, token):

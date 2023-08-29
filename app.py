@@ -48,4 +48,4 @@ if __name__ == '__main__':
     port = 5000 + random.randint(0, 999)
     # url = "http://127.0.0.1:5000"
     # threading.Timer(1.25, lambda: webbrowser.open(url)).start()
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=8000)
