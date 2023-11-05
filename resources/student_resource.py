@@ -243,30 +243,38 @@ class StudentResource:
         student_genders = []
         student_parent_names = []
         student_parent_phones = []
+        student_classes = []
+        student_residencies = []
         student_names = []
 
+        programmes = {"ARTS": [1, 2, 3, 4, 5, 6, 7, 8, 9], "BUSINESS": [1, 2], "SCIENCE": [1, 2, 3, 4],
+                      "HOME%20ECONS": [1, 2, 3, 4], "V.%20ARTS": [1, 2, 3], "AGRIC": [1]}
+
         # Iterate over the programmes and get all students for each
-        for program in programs:
-            payload = {
-                "batch": batch,
-                "program": program['DeptName']
-            }
+        for program, classes in programmes.items():
+            for _class in classes:
+                response = requests.get(f'https://apivm.unilynq.com/api/students/v2/all/{program}%20{_class}/2/120/1',
+                                        headers=headers)
+                students = response.json()['students']
 
-            response = requests.post(url=os.environ.get("STUDENT_LIST_URL"), json=payload, headers=headers)
-            students = response.json()['CSSPS']
-
-            if students:
-                for student in students:
-                    # Check whether student has been assigned to class
-                    if student['assigned']:
-                        student_names.append(student['student_name'])
-                        student_genders.append(student['gender'])
-                        student_ids.append(student['jhs_number'])
-                        student_parent_phones.append(student['phone'] if student['phone'] else "")
-                        student_parent_names.append(student['guardian'] if student['guardian'] else "")
+                if students:
+                    for student in students:
+                        student_names.append(
+                            student['LynQLstname'] + " " + student['LynQFstname'] + " " + student['LynQOnames'])
+                        student_genders.append(student['LynQGender'])
+                        student_ids.append(student['Short'])
+                        student_parent_phones.append(student['pg_mobile_main'] if student['pg_mobile_main'] else "")
+                        guardian = student['pg_name']
+                        if guardian:
+                            student_parent_names.append(guardian[3:])
+                        else:
+                            student_parent_names.append("")
+                        student_classes.append(student['LynQProg'])
+                        student_residencies.append(student['LynQTivity'])
 
         file = pd.DataFrame(
             {"INDEX NUMBER": student_ids, "STUDENT NAME": student_names, "SEX": student_genders,
+             "CLASS": student_classes, "RESIDENCY": student_residencies,
              "GUARDIAN": student_parent_names, "GUARDIAN PHONE": student_parent_phones})
 
         # Create the Excel template
