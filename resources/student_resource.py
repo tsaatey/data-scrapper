@@ -119,7 +119,7 @@ class StudentResource:
              "Programme": student_programmes, "Residency": student_residency})
 
         # Create the Excel template
-        writer = pd.ExcelWriter("student_data.xlsx")
+        writer = pd.ExcelWriter(f"{self.payload.filename}.xlsx")
         file.to_excel(writer, sheet_name="Sheet1", startrow=0, index=True, index_label="SN")
         writer.close()
 
@@ -139,3 +139,139 @@ class StudentResource:
 
     def change_student_program(self):
         pass
+
+    def get_student_as_electorates(self):
+        _response = self.login()
+
+        # If login is not successful, abort
+        if not _response.status:
+            return _response
+
+        # Login is successful
+        # Get all programmes of the school
+        _res = self.get_school_programs(_response.data)
+        programs = _res.data
+
+        # Retrieve batch from submitted data
+        batch = self.payload['batch']
+
+        # Set header parameters
+        headers = {
+            "Authorization": f"Bearer {_response.data}",
+            "Origin": self.origin,
+            "Referer": self.referer
+        }
+
+        student_ids = []
+        student_last_names = []
+        student_first_names = []
+        student_middle_names = []
+        student_genders = []
+
+        # Iterate over the programmes and get all students for each
+        for program in programs:
+            payload = {
+                "batch": batch,
+                "program": program['DeptName']
+            }
+
+            response = requests.post(url=os.environ.get("STUDENT_LIST_URL"), json=payload, headers=headers)
+            students = response.json()['CSSPS']
+
+            if students:
+                for student in students:
+                    # Split the student name to get first name, last name, and middle name
+                    name = student['student_name'].upper()
+                    name_list = name.split(" ")
+
+                    # Only Last name and First name
+                    if len(name_list) == 2:
+                        student_last_names.append(name_list[0])
+                        student_first_names.append(name_list[1])
+                        student_middle_names.append("")
+
+                    # Has last name, first name, and middle name
+                    if len(name_list) == 3:
+                        student_last_names.append(name_list[0])
+                        student_first_names.append(name_list[1])
+                        student_middle_names.append(name_list[2])
+
+                    # Has last name, first name, more than one middle name
+                    if len(name_list) > 3:
+                        student_last_names.append(name_list[0])
+                        student_first_names.append(name_list[1])
+                        student_middle_names.append(name_list[2] + " " + name_list[3])
+
+                    student_genders.append(student['gender'])
+                    student_ids.append(student['jhs_number'])
+
+        file = pd.DataFrame(
+            {"studentid": student_ids, "firstname": student_first_names, "lastname": student_last_names,
+             "othernames": student_middle_names,
+             "gender": student_genders})
+
+        # Create the Excel template
+        writer = pd.ExcelWriter(f"{self.payload['filename']}.xlsx")
+        file.to_excel(writer, sheet_name="Sheet1", startrow=0, index=True, index_label="SN")
+        writer.close()
+
+        return APIResponse(True, 'Students data successfully extracted to excel')
+
+    def get_student_with_parent_contacts(self):
+        _response = self.login()
+
+        # If login is not successful, abort
+        if not _response.status:
+            return _response
+
+        # Login is successful
+        # Get all programmes of the school
+        _res = self.get_school_programs(_response.data)
+        programs = _res.data
+
+        # Retrieve batch from submitted data
+        batch = self.payload['batch']
+
+        # Set header parameters
+        headers = {
+            "Authorization": f"Bearer {_response.data}",
+            "Origin": self.origin,
+            "Referer": self.referer
+        }
+
+        student_ids = []
+        student_genders = []
+        student_parent_names = []
+        student_parent_phones = []
+        student_names = []
+
+        # Iterate over the programmes and get all students for each
+        for program in programs:
+            payload = {
+                "batch": batch,
+                "program": program['DeptName']
+            }
+
+            response = requests.post(url=os.environ.get("STUDENT_LIST_URL"), json=payload, headers=headers)
+            students = response.json()['CSSPS']
+
+            if students:
+                for student in students:
+                    # Check whether student has been assigned to class
+                    if student['assigned']:
+                        student_names.append(student['student_name'])
+                        student_genders.append(student['gender'])
+                        student_ids.append(student['jhs_number'])
+                        student_parent_phones.append(student['phone'] if student['phone'] else "")
+                        student_parent_names.append(student['guardian'] if student['guardian'] else "")
+
+        file = pd.DataFrame(
+            {"INDEX NUMBER": student_ids, "STUDENT NAME": student_names, "SEX": student_genders,
+             "GUARDIAN": student_parent_names, "GUARDIAN PHONE": student_parent_phones})
+
+        # Create the Excel template
+        writer = pd.ExcelWriter(f"{self.payload['filename']}.xlsx")
+        file.to_excel(writer, sheet_name="Sheet1", startrow=0, index=True, index_label="SN")
+        writer.close()
+
+        return APIResponse(True, 'Students data successfully extracted to excel')

@@ -20,25 +20,36 @@ def index():
         batch = request.form.get('batch')
         username = request.form.get('username')
         password = request.form.get('password')
+        filename = request.form.get("filename")
+        purpose = request.form.get('purpose')
 
         # Create a dict with the submitted data
         payload = {
             "school_url": school_url,
             "batch": batch,
             "username": username,
-            "password": password
+            "password": password,
+            "filename": filename
         }
 
         # Pass the payload to the student resource class
         student_resource = StudentResource(payload=payload)
-        response = student_resource.get_students()
+        response = {}
+
+        if purpose == "election":
+            response = student_resource.get_student_as_electorates()
+        elif purpose == "general":
+            response = student_resource.get_students()
+        elif purpose == 'parent_contacts':
+            response = student_resource.get_student_with_parent_contacts()
+
         if not response.status:
             error = response.message
             message = response.message
         else:
             success = True
             message = response.message
-            file_name = "student_data.xlsx"
+            file_name = f"{filename}.xlsx"
             return send_from_directory(pathlib.Path().resolve(), file_name, as_attachment=True)
             # return redirect(url_for('/'), 200,)
     return render_template('index.html', error=error, message=message, success=success)
